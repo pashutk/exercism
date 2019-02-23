@@ -29,14 +29,14 @@ defmodule TwelveDays do
     "twelfth"
   }
 
-  def elem_or(tuple, index, _default) when index >= 0 and index < tuple_size(tuple), do: elem(tuple, index)
-  def elem_or(_tuple, _index, default), do: default
+  defp elem_or(tuple, index, _default) when index >= 0 and index < tuple_size(tuple), do: elem(tuple, index)
+  defp elem_or(_tuple, _index, default), do: default
 
-  def elem_or_empty_string(tuple, index), do: elem_or(tuple, index, "")
+  defp elem_or_empty_string(tuple, index), do: elem_or(tuple, index, "")
 
-  def gifts(1), do: elem_or_empty_string(@gifts, 0)
-  def gifts(2), do: elem_or_empty_string(@gifts, 1) <> ", and " <> elem_or_empty_string(@gifts, 0)
-  def gifts(number), do: elem_or_empty_string(@gifts, number - 1) <> ", " <> gifts(number - 1)
+  defp gifts(1), do: elem_or_empty_string(@gifts, 0)
+  defp gifts(2), do: elem_or_empty_string(@gifts, 1) <> ", and " <> elem_or_empty_string(@gifts, 0)
+  defp gifts(number), do: elem_or_empty_string(@gifts, number - 1) <> ", " <> gifts(number - 1)
 
   @doc """
   Given a `number`, return the song's verse for that specific day, including

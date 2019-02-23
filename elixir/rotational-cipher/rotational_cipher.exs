@@ -3,24 +3,16 @@ defmodule RotationalCipher do
   @lowercase_first ?a
   @alphabet_size ?z - ?a + 1
 
-  def calculate_shifted_char(char, shift, first_char) do
-    first_char + rem char - first_char + shift, @alphabet_size
-  end
+  defp uppercase?(char), do: char >= @uppercase_first and char < @uppercase_first + @alphabet_size
+  defp lowercase?(char), do: char >= @lowercase_first and char < @lowercase_first + @alphabet_size
 
-  def is_uppercase?(char) do
-    char >= @uppercase_first and char < @uppercase_first + @alphabet_size
-  end
-
-  def is_lowercase?(char) do
-    char >= @lowercase_first and char < @lowercase_first + @alphabet_size
-  end
-
-  def calculate_shifted_char(char, shift) do
+  defp calculate_shifted_char(char, shift, first_char), do: first_char + rem(char - first_char + shift, @alphabet_size)
+  defp calculate_shifted_char(char, shift) do
     calculate_shifted_char_from = &(calculate_shifted_char(char, shift, &1))
 
     cond do
-      is_uppercase? char -> calculate_shifted_char_from.(@uppercase_first)
-      is_lowercase? char -> calculate_shifted_char_from.(@lowercase_first)
+      uppercase? char -> calculate_shifted_char_from.(@uppercase_first)
+      lowercase? char -> calculate_shifted_char_from.(@lowercase_first)
       true -> char
     end
   end

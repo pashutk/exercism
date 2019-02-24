@@ -35,19 +35,15 @@ defmodule TwelveDays do
   defp elem_or_empty_string(tuple, index), do: elem_or(tuple, index, "")
 
   defp gifts(1), do: elem_or_empty_string(@gifts, 0)
-  defp gifts(2), do: elem_or_empty_string(@gifts, 1) <> ", and " <> elem_or_empty_string(@gifts, 0)
-  defp gifts(number), do: elem_or_empty_string(@gifts, number - 1) <> ", " <> gifts(number - 1)
+  defp gifts(2), do: "#{elem_or_empty_string(@gifts, 1)}, and #{elem_or_empty_string(@gifts, 0)}"
+  defp gifts(number), do: "#{elem_or_empty_string(@gifts, number - 1)}, #{gifts(number - 1)}"
 
   @doc """
   Given a `number`, return the song's verse for that specific day, including
   all gifts for previous days in the same line.
   """
   @spec verse(number :: integer) :: String.t()
-  def verse(number), do: "On the "
-    <> elem_or_empty_string(@numerals, number - 1)
-    <> " day of Christmas my true love gave to me: "
-    <> gifts(number)
-    <> "."
+  def verse(number), do: "On the #{elem_or_empty_string(@numerals, number - 1)} day of Christmas my true love gave to me: #{gifts(number)}."
 
   @doc """
   Given a `starting_verse` and an `ending_verse`, return the verses for each
@@ -55,7 +51,7 @@ defmodule TwelveDays do
   """
   @spec verses(starting_verse :: integer, ending_verse :: integer) :: String.t()
   def verses(starting_verse, ending_verse) when starting_verse == ending_verse, do: verse(starting_verse)
-  def verses(starting_verse, ending_verse), do: verse(starting_verse) <> "\n" <> verses(starting_verse + 1, ending_verse)
+  def verses(starting_verse, ending_verse), do: "#{verse(starting_verse)}\n" <> verses(starting_verse + 1, ending_verse)
 
   @doc """
   Sing all 12 verses, in order, one verse per line.

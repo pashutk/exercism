@@ -14,9 +14,7 @@ defmodule ArmstrongNumber do
 
   defp split(number, acc \\ [])
   defp split(0, acc), do: acc
-  defp split(number, acc) do
-    split(div(number, @base), [rem(number, @base) | acc])
-  end
+  defp split(number, acc), do: split(div(number, @base), [rem(number, @base) | acc])
 
   defp sum_powers(list), do: sum_powers(list, length(list))
   defp sum_powers([h | t], power), do: :math.pow(h, power) + sum_powers(t, power)

@@ -17,5 +17,10 @@ defmodule Words do
     |> Enum.reduce(%{}, &reduce_occurrences/2)
   end
 
-  defp reduce_occurrences(value, acc), do: Map.update(acc, value, 1, &(&1 + 1))
+  defp increment(number), do: number + 1
+
+  defp reduce_occurrences(value, acc) do
+    acc
+    |> Map.update(value, 1, &increment/1)
+  end
 end

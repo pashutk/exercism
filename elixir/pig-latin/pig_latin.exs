@@ -1,4 +1,6 @@
 defmodule PigLatin do
+  @vowels 'aeiou'
+
   @doc """
   Given a `phrase`, translate it a word at a time to Pig Latin.
 
@@ -14,41 +16,21 @@ defmodule PigLatin do
   Some groups are treated like vowels, including "yt" and "xr".
   """
   @spec translate(phrase :: String.t()) :: String.t()
-  def translate("a" <> rest), do: "a#{rest}ay"
-  def translate("e" <> rest), do: "e#{rest}ay"
-  def translate("i" <> rest), do: "i#{rest}ay"
-  def translate("o" <> rest), do: "o#{rest}ay"
-  def translate("u" <> rest), do: "u#{rest}ay"
-  def translate("yt" <> rest), do: "yt#{rest}ay"
-  def translate("xr" <> rest), do: "xr#{rest}ay"
+  def translate_word([?q|[?u|letters]]), do: [letters | 'quay']
+  def translate_word([?s|[?q|[?u|letters]]]), do: [letters | 'squay']
+  def translate_word([a|[b|letters]]) when a in 'xy' and b not in @vowels, do: [[a|[b|letters]] | 'ay']
 
-  def translate("xr" <> rest), do: "xr#{rest}ay"
-  def translate("b" <> rest), do: ""
-  def translate("c" <> rest), do: ""
-  def translate("d" <> rest), do: ""
-  def translate("f" <> rest), do: ""
-  def translate("g" <> rest), do: ""
-  def translate("h" <> rest), do: ""
-  def translate("j" <> rest), do: ""
-  def translate("k" <> rest), do: ""
-  def translate("l" <> rest), do: ""
-  def translate("m" <> rest), do: ""
-  def translate("n" <> rest), do: ""
-  def translate("p" <> rest), do: ""
-  def translate("q" <> rest), do: ""
-  def translate("r" <> rest), do: ""
-  def translate("s" <> rest), do: ""
-  def translate("t" <> rest), do: ""
-  def translate("v" <> rest), do: ""
-  def translate("x" <> rest), do: ""
-  def translate("y" <> rest), do: ""
-  def translate("z" <> rest), do: ""
-  # def translate(<<consonant::bytes-size(1)>> <> rest), do: "#{rest}#{consonant}ay"
+  def translate_word(letters) do
+    consonants = Enum.take_while(letters, fn letter -> !Enum.member?(@vowels, letter) end)
+    [[Enum.drop(letters, length(consonants)) | consonants] | 'ay']
+  end
 
-
+  @spec translate(phrase :: String.t()) :: String.t()
   def translate(phrase) do
-    case phrase do
-      true -> ""
-    end
+    phrase
+    |> String.split(" ")
+    |> Enum.map(&String.to_charlist/1)
+    |> Enum.map(&translate_word/1)
+    |> Enum.join(" ")
   end
 end

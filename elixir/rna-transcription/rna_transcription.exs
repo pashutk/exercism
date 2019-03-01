@@ -1,4 +1,11 @@
 defmodule RNATranscription do
+  @rna_map %{
+    ?G => ?C,
+    ?C => ?G,
+    ?T => ?A,
+    ?A => ?U,
+  }
+
   @doc """
   Transcribes a character list representing DNA nucleotides to RNA
 
@@ -8,10 +15,7 @@ defmodule RNATranscription do
   'UGAC'
   """
   @spec to_rna([char]) :: [char]
-  def to_rna('G' ++ t), do: 'C' ++ to_rna(t)
-  def to_rna('C' ++ t), do: 'G' ++ to_rna(t)
-  def to_rna('T' ++ t), do: 'A' ++ to_rna(t)
-  def to_rna('A' ++ t), do: 'U' ++ to_rna(t)
-  def to_rna([h | t]), do: [h] ++ to_rna(t)
-  def to_rna([]), do: []
+  def to_rna(list), do: Enum.map(list, &rna_mapper/1)
+
+  defp rna_mapper(item), do: Map.get(@rna_map, item, item)
 end

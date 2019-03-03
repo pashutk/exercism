@@ -1,14 +1,5 @@
 defmodule RunLengthEncoder do
-  defguardp is_numeral(string) when string == "0" or
-                                    string == "1" or
-                                    string == "2" or
-                                    string == "3" or
-                                    string == "4" or
-                                    string == "5" or
-                                    string == "6" or
-                                    string == "7" or
-                                    string == "8" or
-                                    string == "9"
+  defguardp is_numeral(string) when string in ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
 
   @doc """
   Generates a string where consecutive elements are represented as a data value and count.

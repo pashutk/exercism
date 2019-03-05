@@ -1,12 +1,12 @@
 defmodule Scrabble do
   @score_map %{
-    ["A", "E", "I", "O", "U", "L", "N", "R", "S", "T"] => 1,
-    ["D", "G"] => 2,
-    ["B", "C", "M", "P"] => 3,
-    ["F", "H", "V", "W", "Y"] => 4,
-    ["K"] => 5,
-    ["J", "X"] => 8,
-    ["Q", "Z"] => 10
+    ~W(A E I O U L N R S T) => 1,
+    ~W(D G) => 2,
+    ~W(B C M P) => 3,
+    ~W(F H V W Y) => 4,
+    ~W(K) => 5,
+    ~W(J X) => 8,
+    ~W(Q Z) => 10
   }
 
   @doc """

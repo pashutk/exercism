@@ -15,8 +15,8 @@ defmodule Pangram do
   @spec pangram?(String.t()) :: boolean
   def pangram?(sentence) do
     sentence
+    |> String.downcase()
     |> String.split("")
-    |> Enum.map(&String.downcase/1)
     |> Enum.reduce_while(get_alphabet_map(), &reducer/2)
     |> process_result()
   end

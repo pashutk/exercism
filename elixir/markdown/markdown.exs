@@ -15,7 +15,7 @@ defmodule Markdown do
     markdown
     |> String.split("\n")
     |> Enum.map_join("", &process_line/1)
-    |> patch()
+    |> wrap_list()
   end
 
   defp process_line("#" <> _tail = line), do: process_header(line)
@@ -46,7 +46,7 @@ defmodule Markdown do
     |> String.replace(~r/_$/, "</em>")
   end
 
-  defp patch(text) do
+  defp wrap_list(text) do
     text
     |> String.replace("<li>", "<ul><li>", global: false)
     |> String.replace_suffix("</li>", "</li></ul>")

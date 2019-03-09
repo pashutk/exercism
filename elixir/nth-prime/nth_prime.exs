@@ -25,7 +25,7 @@ defmodule Prime do
   def prime?(value) when value < 2, do: false
   def prime?(2), do: true
   def prime?(value) do
-    2..value - 1
+    2..round(:math.sqrt(value))
     |> Stream.filter(&(rem(&1, 2) != 0))
     |> Stream.drop_while(&rem(value, &1) != 0)
     |> Enum.empty?()

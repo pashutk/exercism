@@ -3,6 +3,10 @@ defmodule RobotSimulator do
 
   defstruct direction: :north, position: {0, 0}
 
+  defguardp is_unvalid_position(position)
+            when not is_tuple(position) or tuple_size(position) != 2 or
+                   not is_number(elem(position, 0)) or not is_number(elem(position, 1))
+
   @doc """
   Create a Robot Simulator given an initial direction and position.
 
@@ -11,21 +15,13 @@ defmodule RobotSimulator do
   @spec create(direction :: atom, position :: {integer, integer}) :: any
   def create(direction \\ :north, position \\ {0, 0})
 
-  def create(direction, _position) when direction not in @valid_directions do
-    {:error, "invalid direction"}
-  end
+  def create(direction, _position) when direction not in @valid_directions,
+    do: {:error, "invalid direction"}
 
-  def create(_direction, position)
-      when not is_tuple(position)
-      when tuple_size(position) != 2
-      when not is_number(elem(position, 0))
-      when not is_number(elem(position, 1)) do
-    {:error, "invalid position"}
-  end
+  def create(_direction, position) when is_unvalid_position(position),
+    do: {:error, "invalid position"}
 
-  def create(direction, position) do
-    %RobotSimulator{direction: direction, position: position}
-  end
+  def create(direction, position), do: %RobotSimulator{direction: direction, position: position}
 
   @doc """
   Simulate the robot's movement given a string of instructions.
@@ -79,11 +75,11 @@ defmodule RobotSimulator do
   Valid directions are: `:north`, `:east`, `:south`, `:west`
   """
   @spec direction(robot :: any) :: atom
-  def direction(robot), do: robot.direction
+  def direction(%{direction: d}), do: d
 
   @doc """
   Return the robot's position.
   """
   @spec position(robot :: any) :: {integer, integer}
-  def position(robot), do: robot.position
+  def position(%{position: p}), do: p
 end

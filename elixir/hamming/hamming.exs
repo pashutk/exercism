@@ -8,13 +8,13 @@ defmodule Hamming do
   {:ok, 4}
   """
   @spec hamming_distance([char], [char]) :: {:ok, non_neg_integer} | {:error, String.t()}
-  def hamming_distance(starnd1, strand2, acc \\ {:ok, 0})
-  def hamming_distance('', '', acc), do: acc
+  def hamming_distance(strand1, strand2), do: hamming_distance(strand1, strand2, {:ok, 0})
+  defp hamming_distance('', '', acc), do: acc
 
-  def hamming_distance(strand1, strand2, _acc) when strand1 == [] or strand2 == [],
+  defp hamming_distance(strand1, strand2, _acc) when strand1 == [] or strand2 == [],
     do: {:error, "Lists must be the same length"}
 
-  def hamming_distance([nuc1 | strand1], [nuc2 | strand2], {status, acc}) do
+  defp hamming_distance([nuc1 | strand1], [nuc2 | strand2], {status, acc}) do
     hamming_distance(
       strand1,
       strand2,

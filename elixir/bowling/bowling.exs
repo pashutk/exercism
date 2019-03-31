@@ -1,4 +1,9 @@
 defmodule Bowling do
+  @max_frames_count 10
+  @max_pins_count 10
+  @min_pins_count 0
+  @last_frame_num @max_frames_count - 1
+
   @type regular_frame ::
           :strike
           | {first_throw :: number, :spare}
@@ -29,44 +34,50 @@ defmodule Bowling do
   """
 
   @spec roll(any, integer) :: any | String.t()
-  def roll({frames, _last_roll}, _roll) when length(frames) == 10,
+  def roll({frames, _last_roll}, _roll) when length(frames) == @max_frames_count,
     do: {:error, "Cannot roll after game is over"}
 
-  def roll(_game, roll) when roll < 0, do: {:error, "Negative roll is invalid"}
-  def roll(_game, roll) when roll > 10, do: {:error, "Pin count exceeds pins on the lane"}
+  def roll(_game, roll) when roll < @min_pins_count, do: {:error, "Negative roll is invalid"}
+  def roll(_game, roll) when roll > @max_pins_count, do: exceeded_pins_count()
 
-  def roll({_frames, first_throw}, roll) when first_throw + roll > 10,
-    do: {:error, "Pin count exceeds pins on the lane"}
+  def roll({_frames, first_throw}, roll) when first_throw + roll > @max_pins_count,
+    do: exceeded_pins_count()
 
   def roll({_frames, :strike, second_throw}, roll)
-      when is_number(second_throw) and is_number(roll) and second_throw != 10 and
-             second_throw + roll > 10,
-      do: {:error, "Pin count exceeds pins on the lane"}
+      when is_number(second_throw) and is_number(roll) and second_throw != @max_pins_count and
+             second_throw + roll > @max_pins_count,
+      do: exceeded_pins_count()
 
-  def roll({frames, nil}, 10) when length(frames) == 9, do: {frames, :strike}
-  def roll({frames, :strike}, roll) when length(frames) == 9, do: {frames, :strike, roll}
+  def roll({frames, nil}, @max_pins_count) when length(frames) == @last_frame_num,
+    do: {frames, :strike}
 
-  def roll({frames, :strike, second_roll}, roll) when length(frames) == 9,
+  def roll({frames, :strike}, roll) when length(frames) == @last_frame_num,
+    do: {frames, :strike, roll}
+
+  def roll({frames, :strike, second_roll}, roll) when length(frames) == @last_frame_num,
     do: {[{:strike, second_roll, roll} | frames], nil}
 
-  def roll({frames, nil}, roll) when length(frames) == 9, do: {frames, roll}
+  def roll({frames, nil}, roll) when length(frames) == @last_frame_num, do: {frames, roll}
 
-  def roll({frames, first_throw}, roll) when length(frames) == 9 and first_throw + roll == 10,
-    do: {frames, first_throw, :spare}
+  def roll({frames, first_throw}, roll)
+      when length(frames) == @last_frame_num and first_throw + roll == @max_pins_count,
+      do: {frames, first_throw, :spare}
 
-  def roll({frames, first_throw}, roll) when length(frames) == 9,
+  def roll({frames, first_throw}, roll) when length(frames) == @last_frame_num,
     do: {[{first_throw, roll} | frames], nil}
 
-  def roll({frames, first_throw, :spare}, roll) when length(frames) == 9,
+  def roll({frames, first_throw, :spare}, roll) when length(frames) == @last_frame_num,
     do: {[{first_throw, :spare, roll} | frames], nil}
 
-  def roll({frames, nil}, 10), do: {[:strike | frames], nil}
+  def roll({frames, nil}, @max_pins_count), do: {[:strike | frames], nil}
   def roll({frames, nil}, roll), do: {frames, roll}
 
-  def roll({frames, last_roll}, roll) when last_roll + roll == 10,
+  def roll({frames, last_roll}, roll) when last_roll + roll == @max_pins_count,
     do: {[{last_roll, :spare} | frames], nil}
 
   def roll({frames, last_roll}, roll), do: {[{last_roll, roll} | frames], nil}
+
+  defp exceeded_pins_count(), do: {:error, "Pin count exceeds pins on the lane"}
 
   @doc """
     Returns the score of a given game of bowling if the game is complete.
@@ -77,7 +88,7 @@ defmodule Bowling do
   def score({[], _last_roll}), do: not_end()
   def score({_frames, last_roll}) when not is_nil(last_roll), do: not_end()
   def score({_frames, _, _}), do: not_end()
-  def score({frames, _last_roll}) when length(frames) != 10, do: not_end()
+  def score({frames, _last_roll}) when length(frames) != @max_frames_count, do: not_end()
 
   def score({frames, _last_roll}) do
     frames
@@ -92,34 +103,44 @@ defmodule Bowling do
   defp split_into_triples([]), do: []
   defp split_into_triples([_h | t] = list), do: [Enum.take(list, 3) | split_into_triples(t)]
 
-  defp frame_points([:strike, :strike, :strike]), do: 30
-  defp frame_points([:strike, :strike, {:strike, _, _}]), do: 30
-  defp frame_points([:strike, :strike, {first_throw, _}]), do: 20 + first_throw
-  defp frame_points([:strike, {_first_throw, :spare}, _]), do: 20
+  defp frame_points([:strike, :strike, :strike]), do: @max_pins_count * 3
+  defp frame_points([:strike, :strike, {:strike, _, _}]), do: @max_pins_count * 3
+  defp frame_points([:strike, :strike, {first_throw, _}]), do: @max_pins_count * 2 + first_throw
+  defp frame_points([:strike, {_first_throw, :spare}, _]), do: @max_pins_count * 2
 
   defp frame_points([:strike, {first_throw, second_throw}, _]),
-    do: 10 + first_throw + second_throw
+    do: @max_pins_count + first_throw + second_throw
 
-  defp frame_points([{_first_throw, :spare}, :strike, _]), do: 20
-  defp frame_points([{_first_throw, :spare}, {next_first_throw, _}, _]), do: 10 + next_first_throw
+  defp frame_points([{_first_throw, :spare}, :strike, _]), do: @max_pins_count * 2
+
+  defp frame_points([{_first_throw, :spare}, {next_first_throw, _}, _]),
+    do: @max_pins_count + next_first_throw
+
   defp frame_points([{first_throw, second_throw}, _, _]), do: first_throw + second_throw
 
-  defp frame_points([:strike, {:strike, second_throw, _}]), do: 20 + second_throw
-  defp frame_points([:strike, {_first_throw, :spare, _}]), do: 20
+  defp frame_points([:strike, {:strike, second_throw, _}]), do: @max_pins_count * 2 + second_throw
+  defp frame_points([:strike, {_first_throw, :spare, _}]), do: @max_pins_count * 2
 
   defp frame_points([:strike, {first_throw, second_throw, _}]),
-    do: 10 + first_throw + second_throw
+    do: @max_pins_count + first_throw + second_throw
 
-  defp frame_points([{_first_throw, :spare}, {:strike, _, _}]), do: 20
-  defp frame_points([{_first_throw, :spare}, {next_first_throw, _, _}]), do: 10 + next_first_throw
-  defp frame_points([{_first_throw, :spare}, {next_first_throw, _}]), do: 10 + next_first_throw
+  defp frame_points([{_first_throw, :spare}, {:strike, _, _}]), do: @max_pins_count * 2
+
+  defp frame_points([{_first_throw, :spare}, {next_first_throw, _, _}]),
+    do: @max_pins_count + next_first_throw
+
+  defp frame_points([{_first_throw, :spare}, {next_first_throw, _}]),
+    do: @max_pins_count + next_first_throw
+
   defp frame_points([{first_throw, second_throw}, _]), do: first_throw + second_throw
 
-  defp frame_points([{:strike, second_throw, third_throw}]), do: 10 + second_throw + third_throw
-  defp frame_points([{_first_throw, :spare, third_throw}]), do: 10 + third_throw
+  defp frame_points([{:strike, second_throw, third_throw}]),
+    do: @max_pins_count + second_throw + third_throw
+
+  defp frame_points([{_first_throw, :spare, third_throw}]), do: @max_pins_count + third_throw
   defp frame_points([{first_throw, second_throw}]), do: first_throw + second_throw
 
-  defp frame_points([:strike]), do: 10
-  defp frame_points([{_first_throw, :spare}]), do: 10
+  defp frame_points([:strike]), do: @max_pins_count
+  defp frame_points([{_first_throw, :spare}]), do: @max_pins_count
   defp frame_points([{first_throw, second_throw}]), do: first_throw + second_throw
 end
